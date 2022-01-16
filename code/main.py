@@ -114,11 +114,15 @@ def get_names( image ):
     name_height = 0.0139
     name_height_separation = (last_name_row_center - first_name_row_center)/4
 
-    cropped_images = []
+    # no idea what this config does, just copied from the blog
+    custom_config = r'--oem 3 --psm 6'
+    all_names = []
+    all_images = []
 
     current_row_center = first_name_row_center
     for name_row_index in range(5):
-        cropped_images.append( 12 * [ None ] )
+        all_names.append( 12 * [ None ] )
+        all_images.append( 12 * [ None ] )
         name_row_start = int(height * (current_row_center - name_height/2))
         name_row_end = int(height * (current_row_center + name_height/2))
 
@@ -126,25 +130,19 @@ def get_names( image ):
         for name_col_index in range(12):
             name_col_start = int(width * (current_col_center - name_width/2))
             name_col_end = int(width * (current_col_center + name_width/2))
-            # cropped = image[0:height, name_col_start:name_col_end]
-            cropped_images[name_row_index][name_col_index] = image[name_row_start:name_row_end, name_col_start:name_col_end]
-            # cv2.imshow('cropped', cropped)
-            # cv2.waitKey(0)
-            # cv2.destroyAllWindows()
+            all_images[name_row_index][name_col_index] = image[name_row_start:name_row_end, name_col_start:name_col_end]
+            all_names[name_row_index][name_col_index] = pytesseract.image_to_string(all_images[name_row_index][name_col_index])
 
+            # if all_names[name_row_index][name_col_index].strip() != "":
+            print(all_names[name_row_index][name_col_index].strip())
             current_col_center += name_width
         current_row_center += name_height_separation
 
-    cv2.imshow('cropped', cropped_images[0][1])
+    cv2.imshow('image', all_images[4][0])
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-    cv2.imshow('cropped', cropped_images[3][3])
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    cv2.imshow('cropped', cropped_images[4][9])
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    return cropped_images
+    return all_names
+
 # returns 5 x 12 arrary of all cubicles
 def get_cropped_images( img ):
     height = img.shape[0]
@@ -190,11 +188,13 @@ if __name__ == "__main__":
 
     croppedImgs = get_cropped_images( img )
 
-    # img2 = find_white( img )
-    # imgGray = get_grayscale( img2 )
-    # #cv2.imwrite( "test_images/test2_gray3.png", imgGray )
-    # threshVal, threshImg = cv2.threshold( imgGray, 230, 255, cv2.THRESH_BINARY )
+    img2 = find_white( img )
+    imgGray = get_grayscale( img2 )
+    #cv2.imwrite( "test_images/test2_gray3.png", imgGray )
+    threshVal, threshImg = cv2.threshold( imgGray, 230, 255, cv2.THRESH_BINARY )
     # cv2.imwrite( "test_images/test2_gray3.png", threshImg )
+
+    names = get_names(threshImg)
 
     # #threshImg = keep_only_white( img )
 
