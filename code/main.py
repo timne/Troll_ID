@@ -1,3 +1,4 @@
+from email.mime import image
 import cv2
 import pytesseract
 import numpy as np
@@ -95,24 +96,63 @@ def take_screenshot():
     snapshot = ImageGrab.grab()
     snapshot.save( "test_images/LT_fullscreen_3.png" )
 
+# returns 5 x 12 arrary of all cubicles
+def get_cropped_images( img ):
+    height = img.shape[0]
+    width = img.shape[1]
+
+    startX = 539 / 2560
+    endX = 2020 / 2560
+    deltaX = (endX - startX) / 12
+    startY = 250 / 1440
+    endY = 928 / 1440
+    deltaY = (endY - startY) / 5
+    # for r in range( 6 ):
+    #     y = int( height * (startY + r*deltaY) )
+    #     cv2.line( img, (0, y), (width, y), (255, 0, 0), thickness=2 )
+    # for c in range( 13 ):
+    #     x = int( width * (startX + c*deltaX) )
+    #     cv2.line( img, (x, 0), (x, height), (255, 0, 0), thickness=2 )
+
+    croppedImages = []
+    for r in range( 5 ):
+        croppedImages.append( 12 * [ None ] )
+        for c in range( 12 ):
+            x1 = int( width * (startX + c*deltaX) )
+            x2 = int( width * (startX + (c+1)*deltaX) )
+            y1 = int( height * (startY + r*deltaY) )
+            y2 = int( height * (startY + (r+1)*deltaY) )
+            croppedImages[r][c] = img[y1:y2, x1:x2]
+
+    # for r in range( 5 ):
+    #     for c in range( 12 ):
+    #         plt.imshow( croppedImages[r][c] )
+    #         plt.show()
+
+    return croppedImages
+
 if __name__ == "__main__":
-    filename = "test_images/test2.png"
+    filename = "test_images/LT_fullscreen_1.png"
     img = cv2.imread( filename )
     if img is None:
         print( "Could not load image '" + filename + "'" )
         exit( 0 )
+    img = cv2.cvtColor( img, cv2.COLOR_BGR2RGB )
 
-    img2 = find_white( img )
-    imgGray = get_grayscale( img2 )
-    #cv2.imwrite( "test_images/test2_gray3.png", imgGray )
-    threshVal, threshImg = cv2.threshold( imgGray, 230, 255, cv2.THRESH_BINARY )
+    croppedImgs = get_cropped_images( img )
 
-    #threshImg = keep_only_white( img )
+    # img2 = find_white( img )
+    # imgGray = get_grayscale( img2 )
+    # #cv2.imwrite( "test_images/test2_gray3.png", imgGray )
+    # threshVal, threshImg = cv2.threshold( imgGray, 230, 255, cv2.THRESH_BINARY )
+    # cv2.imwrite( "test_images/test2_gray3.png", threshImg )
 
-    #plt.imshow( threshImg, cmap='gray' )
-    #plt.show()
+    # #threshImg = keep_only_white( img )
 
-    # no idea what this config does, just copied from the blog
-    custom_config = r'--oem 3 --psm 6'
-    res = pytesseract.image_to_string( threshImg, config=custom_config )
-    print( res )
+    # plt.imshow( threshImg, cmap='gray' )
+    # plt.show()
+
+    # # no idea what this config does, just copied from the blog
+    # custom_config = r'--oem 3 --psm 6'
+    # res = pytesseract.image_to_string( threshImg, config=custom_config )
+    # print( res )
