@@ -91,16 +91,68 @@ def keep_only_white( image ):
 
     return dstImage
 
+def invert_image( image ):
+    res = cv2.bitwise_not(image)
+    return res
+
 def take_screenshot():
     snapshot = ImageGrab.grab()
     snapshot.save( "test_images/LT_fullscreen_3.png" )
 
+
+def get_names( image ):
+    height = image.shape[0]
+    width = image.shape[1]
+
+    first_name_col_center = 0.2289
+    last_name_col_center = 0.7707
+    name_width = (last_name_col_center - first_name_col_center)/11
+
+    first_name_row_center = 0.1764
+    last_name_row_center = 0.5618
+    name_height = 0.0139
+    name_height_separation = (last_name_row_center - first_name_row_center)/4
+
+    cropped_images = []
+
+    current_row_center = first_name_row_center
+    for name_row_index in range(5):
+        cropped_images.append( 12 * [ None ] )
+        name_row_start = int(height * (current_row_center - name_height/2))
+        name_row_end = int(height * (current_row_center + name_height/2))
+
+        current_col_center = first_name_col_center
+        for name_col_index in range(12):
+            name_col_start = int(width * (current_col_center - name_width/2))
+            name_col_end = int(width * (current_col_center + name_width/2))
+            # cropped = image[0:height, name_col_start:name_col_end]
+            cropped_images[name_row_index][name_col_index] = image[name_row_start:name_row_end, name_col_start:name_col_end]
+            # cv2.imshow('cropped', cropped)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
+
+            current_col_center += name_width
+        current_row_center += name_height_separation
+
+    cv2.imshow('cropped', cropped_images[0][1])
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    cv2.imshow('cropped', cropped_images[3][3])
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    cv2.imshow('cropped', cropped_images[4][9])
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    return cropped_images
+
 if __name__ == "__main__":
-    filename = "test_images/test2.png"
+    filename = "test_images/LT_fullscreen_1.png"
     img = cv2.imread( filename )
     if img is None:
         print( "Could not load image '" + filename + "'" )
         exit( 0 )
+
+    get_names(img)
 
     img2 = find_white( img )
     imgGray = get_grayscale( img2 )
