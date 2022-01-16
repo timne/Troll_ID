@@ -48,15 +48,15 @@ def match_template(image, template):
     return cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
 
 
-def remove_yellow(image):
+def find_white(image):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-    lower_yellow = np.array([25, 20, 50])
-    upper_yellow = np.array([35, 255, 255])
+    lower_white = np.array([0, 0, 235])
+    upper_white = np.array([179, 20, 255])
 
-    mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
+    mask = cv2.inRange(hsv, lower_white, upper_white)
 
-    mask = cv2.bitwise_not(mask)
+    # mask = cv2.bitwise_not(mask)
     res = cv2.bitwise_and(image, image, mask= mask)
 
     cv2.imshow('image', res)
@@ -72,7 +72,7 @@ if __name__ == "__main__":
         print( "Could not load image '" + filename + "'" )
         exit( 0 )
 
-    img2 = remove_yellow( img )
+    img2 = find_white( img )
 
     imgGray = get_grayscale( img )
     #cv2.imwrite( "test_images/test1_gray.png", imgGray )
