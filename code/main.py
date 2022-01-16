@@ -2,7 +2,7 @@ import cv2
 import pytesseract
 import numpy as np
 from matplotlib import pyplot as plt
-import scipy
+from PIL import ImageGrab
 
 def get_grayscale(image):
     return cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
@@ -91,6 +91,10 @@ def keep_only_white( image ):
 
     return dstImage
 
+def take_screenshot():
+    snapshot = ImageGrab.grab()
+    snapshot.save( "test_images/LT_fullscreen_3.png" )
+
 if __name__ == "__main__":
     filename = "test_images/test2.png"
     img = cv2.imread( filename )
@@ -101,8 +105,8 @@ if __name__ == "__main__":
     img2 = find_white( img )
     imgGray = get_grayscale( img2 )
     #cv2.imwrite( "test_images/test2_gray3.png", imgGray )
-
     threshVal, threshImg = cv2.threshold( imgGray, 230, 255, cv2.THRESH_BINARY )
+
     #threshImg = keep_only_white( img )
 
     #plt.imshow( threshImg, cmap='gray' )
