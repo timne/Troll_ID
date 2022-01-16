@@ -9,14 +9,14 @@ def get_grayscale(image):
 
 def remove_noise(image):
     return cv2.medianBlur(image,5)
- 
+
 def thresholding(image):
     return cv2.threshold(image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
 
 def dilate(image):
     kernel = np.ones((5,5),np.uint8)
     return cv2.dilate(image, kernel, iterations = 1)
-    
+
 def erode(image):
     kernel = np.ones((5,5),np.uint8)
     return cv2.erode(image, kernel, iterations = 1)
@@ -45,7 +45,25 @@ def deskew(image):
 
 #template matching
 def match_template(image, template):
-    return cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED) 
+    return cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
+
+
+def remove_yellow(image):
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+    lower_yellow = np.array([25, 20, 50])
+    upper_yellow = np.array([35, 255, 255])
+
+    mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
+
+    mask = cv2.bitwise_not(mask)
+    res = cv2.bitwise_and(image, image, mask= mask)
+
+    cv2.imshow('image', res)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    return res
 
 if __name__ == "__main__":
     filename = "test_images/test2.png"
@@ -53,7 +71,9 @@ if __name__ == "__main__":
     if img is None:
         print( "Could not load image '" + filename + "'" )
         exit( 0 )
-    
+
+    img2 = remove_yellow( img )
+
     imgGray = get_grayscale( img )
     #cv2.imwrite( "test_images/test1_gray.png", imgGray )
 
