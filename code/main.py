@@ -2,6 +2,7 @@ import cv2
 import pytesseract
 import numpy as np
 from matplotlib import pyplot as plt
+import scipy
 
 def get_grayscale(image):
     return cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
@@ -47,12 +48,21 @@ def match_template(image, template):
     return cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED) 
 
 if __name__ == "__main__":
-    filename = "test_images/test1.png"
+    filename = "test_images/test2.png"
     img = cv2.imread( filename )
+    if img is None:
+        print( "Could not load image '" + filename + "'" )
+        exit( 0 )
+    
     imgGray = get_grayscale( img )
     #cv2.imwrite( "test_images/test1_gray.png", imgGray )
-    
-    ret, threshImg = cv2.threshold( imgGray, 254, 255, cv2.THRESH_BINARY )
+
+    threshVal, threshImg = cv2.threshold( imgGray, 230, 255, cv2.THRESH_BINARY )
 
     plt.imshow( threshImg, cmap='gray' )
     plt.show()
+
+    # no idea what this config does, just copied from the blog
+    custom_config = r'--oem 3 --psm 6'
+    res = pytesseract.image_to_string( threshImg, config=custom_config )
+    print( res )
