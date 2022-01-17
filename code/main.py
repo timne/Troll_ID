@@ -4,6 +4,10 @@ import pytesseract
 import numpy as np
 from matplotlib import pyplot as plt
 from PIL import ImageGrab
+from difflib import SequenceMatcher
+
+def str_similarity( a,b ):
+    return SequenceMatcher( None, a, b ).ratio()
 
 def load_image( filename ):
     img = cv2.imread( filename )
@@ -23,6 +27,9 @@ def find_white(image):
 
     # mask = cv2.bitwise_not(mask)
     res = cv2.bitwise_and(image, image, mask= mask)
+
+    res = cv2.cvtColor( res, cv2.COLOR_RGB2GRAY )
+    threshVal, res = cv2.threshold( res, 230, 255, cv2.THRESH_BINARY )
 
     # cv2.imshow('image', res)
     # cv2.waitKey(0)
@@ -64,7 +71,9 @@ def take_screenshot():
     snapshot = ImageGrab.grab()
     snapshot.save( "test_images/LT_fullscreen_3.png" )
 
-def get_names( image ):
+def get_names( inputRGBImage ):
+    image = find_white( inputRGBImage )
+
     height = image.shape[0]
     width = image.shape[1]
 
@@ -94,16 +103,16 @@ def get_names( image ):
             name_col_start = int(width * (current_col_center - name_width/2))
             name_col_end = int(width * (current_col_center + name_width/2))
             all_images[name_row_index][name_col_index] = image[name_row_start:name_row_end, name_col_start:name_col_end]
-            all_names[name_row_index][name_col_index] = pytesseract.image_to_string(all_images[name_row_index][name_col_index])
+            all_names[name_row_index][name_col_index] = pytesseract.image_to_string( all_images[name_row_index][name_col_index], config=custom_config ).strip()
 
             # if all_names[name_row_index][name_col_index].strip() != "":
-            print(all_names[name_row_index][name_col_index].strip())
+            # print(all_names[name_row_index][name_col_index])
             current_col_center += name_width
         current_row_center += name_height_separation
 
-    cv2.imshow('image', all_images[4][0])
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow('image', all_images[4][0])
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
     return all_names
 
 # returns 5 x 12 arrary of all cubicles
@@ -117,6 +126,9 @@ def get_cropped_images( img ):
     startY = 250 / 1440
     endY = 928 / 1440
     deltaY = (endY - startY) / 5
+
+    cubicleWidth = int( width * deltaX )
+    cubicleHeight = int( height * deltaY )
     # for r in range( 6 ):
     #     y = int( height * (startY + r*deltaY) )
     #     cv2.line( img, (0, y), (width, y), (255, 0, 0), thickness=2 )
@@ -129,9 +141,9 @@ def get_cropped_images( img ):
         croppedImages.append( 12 * [ None ] )
         for c in range( 12 ):
             x1 = int( width * (startX + c*deltaX) )
-            x2 = int( width * (startX + (c+1)*deltaX) )
+            x2 = x1 + cubicleWidth
             y1 = int( height * (startY + r*deltaY) )
-            y2 = int( height * (startY + (r+1)*deltaY) )
+            y2 = y1 + cubicleHeight
             croppedImages[r][c] = img[y1:y2, x1:x2]
 
     # for r in range( 5 ):
@@ -141,37 +153,54 @@ def get_cropped_images( img ):
 
     return croppedImages
 
-def create_final_display_image( croppedImgs, trolls ):
-    if len( trolls ) == 0:
+def create_final_display_image( croppedImgs, names ):
+    lines = open( "trolls.txt" ).readlines()
+    L = len( lines )
+    trollNames = L * [ "" ]
+    trollReasons = L * [ "" ]
+    for i in range( L ):
+        s = lines[i].strip().split( ',' )
+        trollNames[i] = s[0]
+        if len( s ) > 1:
+            trollReasons[i] = s[1]
+
+    foundTrolls = []
+    for r in range( 5 ):
+        for c in range( 12 ):
+            name = names[r][c]
+            if name == "":
+                continue
+            for i in range( L ):
+                strSimilarity = str_similarity( name, trollNames[i] )
+                print( "Similarity " + name + " vs " + trollNames[i] + ":", strSimilarity )
+                if strSimilarity >= 0.8:
+                    foundTrolls.append( (r, c) )
+
+    img = None
+    numTrolls = len( foundTrolls )
+    if numTrolls == 0:
         img = load_image( "no_trolls.png" )
-        cv2.imshow('cropped', img )
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
     else:
-        for troll in trolls:
-            row = troll[0]
-            col = troll[1]
+        cH = croppedImgs[0][0].shape[0]
+        cW = croppedImgs[0][0].shape[1]
+        effectiveWidth = cW + 6
+        img = np.zeros( (cH, numTrolls * effectiveWidth, 3), dtype=np.uint8 )
+        count = 0
+        for troll in foundTrolls:
+            r = troll[0]
+            c = troll[1]
+            img[:,count*effectiveWidth:count*effectiveWidth + cW] = croppedImgs[r][c]
+            count += 1
+
+    cv2.imshow( 'Trolls', img )
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     filename = "test_images/LT_fullscreen_1.png"
     img = load_image( filename )
-
-    croppedImgs = get_cropped_images( img )
-
-    img2 = find_white( img )
-    imgGray = cv2.cvtColor( img2, cv2.COLOR_RGB2GRAY)
-    #cv2.imwrite( "test_images/test2_gray3.png", imgGray )
-    threshVal, threshImg = cv2.threshold( imgGray, 230, 255, cv2.THRESH_BINARY )
     # cv2.imwrite( "test_images/test2_gray3.png", threshImg )
 
-    names = get_names(threshImg)
-
-    # #threshImg = keep_only_white( img )
-
-    # plt.imshow( threshImg, cmap='gray' )
-    # plt.show()
-
-    # # no idea what this config does, just copied from the blog
-    # custom_config = r'--oem 3 --psm 6'
-    # res = pytesseract.image_to_string( threshImg, config=custom_config )
-    # print( res )
+    names = get_names( img )
+    croppedImgs = get_cropped_images( img )
+    create_final_display_image( croppedImgs, names )
