@@ -103,10 +103,11 @@ def get_names( inputRGBImage ):
             name_col_start = int(width * (current_col_center - name_width/2))
             name_col_end = int(width * (current_col_center + name_width/2))
             all_images[name_row_index][name_col_index] = image[name_row_start:name_row_end, name_col_start:name_col_end]
-            all_names[name_row_index][name_col_index] = pytesseract.image_to_string( all_images[name_row_index][name_col_index], config=custom_config ).strip()
+            name = pytesseract.image_to_string( all_images[name_row_index][name_col_index] ).strip()
+            all_names[name_row_index][name_col_index] = name
 
-            # if all_names[name_row_index][name_col_index].strip() != "":
-            # print(all_names[name_row_index][name_col_index])
+            # if name != "":
+            #     print( name )
             current_col_center += name_width
         current_row_center += name_height_separation
 
@@ -172,7 +173,7 @@ def create_final_display_image( croppedImgs, names ):
                 continue
             for i in range( L ):
                 strSimilarity = str_similarity( name, trollNames[i] )
-                print( "Similarity " + name + " vs " + trollNames[i] + ":", strSimilarity )
+                #print( "Similarity " + name + " vs " + trollNames[i] + ":", strSimilarity )
                 if strSimilarity >= 0.8:
                     foundTrolls.append( (r, c) )
 
