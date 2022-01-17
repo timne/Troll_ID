@@ -103,7 +103,7 @@ def get_names( inputRGBImage ):
             name_col_start = int(width * (current_col_center - name_width/2))
             name_col_end = int(width * (current_col_center + name_width/2))
             all_images[name_row_index][name_col_index] = image[name_row_start:name_row_end, name_col_start:name_col_end]
-            name = pytesseract.image_to_string( all_images[name_row_index][name_col_index] ).strip()
+            name = pytesseract.image_to_string( all_images[name_row_index][name_col_index], config=custom_config ).strip()
             all_names[name_row_index][name_col_index] = name
 
             # if name != "":
