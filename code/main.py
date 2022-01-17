@@ -14,7 +14,7 @@ def load_image( filename ):
     if img is None:
         print( "Could not load image '" + filename + "'" )
         exit( 0 )
-    img = cv2.cvtColor( img, cv2.COLOR_BGR2RGB )
+    #img = cv2.cvtColor( img, cv2.COLOR_BGR2RGB )
     return img
 
 def find_white(image):
@@ -184,7 +184,8 @@ def create_final_display_image( croppedImgs, names ):
         cH = croppedImgs[0][0].shape[0]
         cW = croppedImgs[0][0].shape[1]
         effectiveWidth = cW + 6
-        img = np.zeros( (cH, numTrolls * effectiveWidth, 3), dtype=np.uint8 )
+        totalW = numTrolls * effectiveWidth - 6
+        img = np.zeros( (cH, totalW, 3), dtype=np.uint8 )
         count = 0
         for troll in foundTrolls:
             r = troll[0]
