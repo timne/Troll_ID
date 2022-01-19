@@ -7,6 +7,7 @@ from PIL import ImageGrab
 from difflib import SequenceMatcher
 from pynput.keyboard import Key, Controller
 import pygetwindow as gw
+import time
 
 def str_similarity( a,b ):
     return SequenceMatcher( None, a, b ).ratio()
@@ -76,6 +77,7 @@ def take_screenshot():
     keyboard = Controller()
     keyboard.press( Key.tab )
     keyboard.release( Key.tab )
+    time.sleep( 0.1 )
     snapshot = ImageGrab.grab()
     print( "Screenshot taken" )
     keyboard.press( Key.tab )
