@@ -206,6 +206,12 @@ if __name__ == "__main__":
     take_screenshot()
     img = load_image( "tmpScreenshot.png" )
     names = get_names( img )
+    flatNameList = []
+    for nameRow in names:
+        for name in nameRow:
+            if name != "":
+                flatNameList.append( name )
+    print( flatNameList )
     croppedImgs = get_cropped_images( img )
     create_final_display_image( croppedImgs, names )
 
