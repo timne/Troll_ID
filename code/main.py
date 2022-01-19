@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
 from PIL import ImageGrab
 from difflib import SequenceMatcher
 from pynput.keyboard import Key, Controller
+import pygetwindow as gw
 
 def str_similarity( a,b ):
     return SequenceMatcher( None, a, b ).ratio()
@@ -69,8 +70,16 @@ def invert_image( image ):
     return res
 
 def take_screenshot():
+    handle = gw.getWindowsWithTitle('FallGuys_client')[0]
+    handle.activate()
+    handle.maximize()
+    keyboard = Controller()
+    keyboard.press( Key.tab )
+    keyboard.release( Key.tab )
     snapshot = ImageGrab.grab()
     print( "Screenshot taken" )
+    keyboard.press( Key.tab )
+    keyboard.release( Key.tab )
     snapshot.save( "tmpScreenshot.png" )
 
 def get_names( inputRGBImage ):
@@ -215,10 +224,3 @@ if __name__ == "__main__":
     print( flatNameList )
     croppedImgs = get_cropped_images( img )
     create_final_display_image( croppedImgs, names )
-
-    # keyboard = Controller()
-    # keyboard.press( Key.tab )
-    # keyboard.release( Key.tab )
-    # take_screenshot()
-    # keyboard.press( Key.tab )
-    # keyboard.release( Key.tab )
