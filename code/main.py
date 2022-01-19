@@ -229,3 +229,6 @@ if __name__ == "__main__":
     print( flatNameList )
     croppedImgs = get_cropped_images( img )
     create_final_display_image( croppedImgs, names )
+    handle = gw.getWindowsWithTitle('FallGuys_client')[0]
+    handle.activate()
+    handle.maximize()
