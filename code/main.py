@@ -70,6 +70,7 @@ def invert_image( image ):
 
 def take_screenshot():
     snapshot = ImageGrab.grab()
+    print( "Screenshot taken" )
     snapshot.save( "tmpScreenshot.png" )
 
 def get_names( inputRGBImage ):
