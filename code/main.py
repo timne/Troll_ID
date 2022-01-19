@@ -5,6 +5,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from PIL import ImageGrab
 from difflib import SequenceMatcher
+from pynput.keyboard import Key, Controller
 
 def str_similarity( a,b ):
     return SequenceMatcher( None, a, b ).ratio()
@@ -69,7 +70,7 @@ def invert_image( image ):
 
 def take_screenshot():
     snapshot = ImageGrab.grab()
-    snapshot.save( "test_images/LT_fullscreen_3.png" )
+    snapshot.save( "tmpScreenshot.png" )
 
 def get_names( inputRGBImage ):
     image = find_white( inputRGBImage )
@@ -199,10 +200,18 @@ def create_final_display_image( croppedImgs, names ):
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    filename = "test_images/LT_fullscreen_1.png"
-    img = load_image( filename )
-    # cv2.imwrite( "test_images/test2_gray3.png", threshImg )
+    #filename = "test_images/LT_fullscreen_1.png"
+    # # cv2.imwrite( "test_images/test2_gray3.png", threshImg )
 
+    take_screenshot()
+    img = load_image( "tmpScreenshot.png" )
     names = get_names( img )
     croppedImgs = get_cropped_images( img )
     create_final_display_image( croppedImgs, names )
+
+    # keyboard = Controller()
+    # keyboard.press( Key.tab )
+    # keyboard.release( Key.tab )
+    # take_screenshot()
+    # keyboard.press( Key.tab )
+    # keyboard.release( Key.tab )
