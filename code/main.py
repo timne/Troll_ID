@@ -208,6 +208,9 @@ def create_final_display_image( croppedImgs, names ):
             count += 1
 
     cv2.imshow( 'Trolls', img )
+    handle = gw.getWindowsWithTitle('Trolls')[0]
+    handle.activate()
+    #handle.maximize()
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
