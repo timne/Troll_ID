@@ -1,13 +1,12 @@
-from email.mime import image
+print( "importing libs..." )
 import cv2
-import pytesseract
+from pytesseract import image_to_string
 import numpy as np
-from matplotlib import pyplot as plt
 from PIL import ImageGrab
 from difflib import SequenceMatcher
 from pynput.keyboard import Key, Controller
 import pygetwindow as gw
-import time
+from time import sleep
 
 def str_similarity( a,b ):
     return SequenceMatcher( None, a, b ).ratio()
@@ -77,7 +76,7 @@ def take_screenshot():
     keyboard = Controller()
     keyboard.press( Key.tab )
     keyboard.release( Key.tab )
-    time.sleep( 0.1 )
+    sleep( 0.1 )
     snapshot = ImageGrab.grab()
     print( "Screenshot taken" )
     keyboard.press( Key.tab )
@@ -116,7 +115,7 @@ def get_names( inputRGBImage ):
             name_col_start = int(width * (current_col_center - name_width/2))
             name_col_end = int(width * (current_col_center + name_width/2))
             all_images[name_row_index][name_col_index] = image[name_row_start:name_row_end, name_col_start:name_col_end]
-            name = pytesseract.image_to_string( all_images[name_row_index][name_col_index], config=custom_config ).strip()
+            name = image_to_string( all_images[name_row_index][name_col_index], config=custom_config ).strip()
             all_names[name_row_index][name_col_index] = name
 
             # if name != "":
@@ -218,6 +217,7 @@ if __name__ == "__main__":
     #filename = "test_images/LT_fullscreen_1.png"
     # # cv2.imwrite( "test_images/test2_gray3.png", threshImg )
 
+    print( "beginning of main..." )
     take_screenshot()
     img = load_image( "tmpScreenshot.png" )
     names = get_names( img )
