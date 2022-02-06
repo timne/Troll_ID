@@ -181,6 +181,7 @@ def create_final_display_image( croppedImgs, names ):
         if len( s ) > 1:
             trollReasons[i] = s[1]
 
+    time1 = perf_counter()
     foundTrolls = []
     for r in range( 5 ):
         for c in range( 12 ):
@@ -192,6 +193,8 @@ def create_final_display_image( croppedImgs, names ):
                 #print( "Similarity " + name + " vs " + trollNames[i] + ":", strSimilarity )
                 if strSimilarity >= 0.8:
                     foundTrolls.append( (r, c) )
+    time2 = perf_counter()
+    print("check for trolls: ", time2 - time1, "s")
 
     img = None
     numTrolls = len( foundTrolls )
@@ -234,9 +237,7 @@ if __name__ == "__main__":
                 flatNameList.append( name )
     print( flatNameList )
     croppedImgs = get_cropped_images( img )
-    pre_final = perf_counter()
     create_final_display_image( croppedImgs, names )
-    post_final=perf_counter()
     handle = gw.getWindowsWithTitle('FallGuys_client')[0]
     handle.activate()
     handle.maximize()
@@ -244,4 +245,3 @@ if __name__ == "__main__":
     print("import time: ", post_import - pre_import, "s")
     print("screenshot time: ", post_screen - pre_screen, "s")
     print("get names time: ", post_get_names - post_screen, "s")
-    print("check for trolls time: ", post_final - pre_final, "s")
