@@ -1,4 +1,6 @@
 print( "importing libs..." )
+from time import perf_counter
+pre_import = perf_counter()
 import cv2
 from pytesseract import image_to_string
 import numpy as np
@@ -7,6 +9,8 @@ from difflib import SequenceMatcher
 from pynput.keyboard import Key, Controller
 import pygetwindow as gw
 from time import sleep
+post_import = perf_counter()
+
 
 def str_similarity( a,b ):
     return SequenceMatcher( None, a, b ).ratio()
@@ -216,11 +220,13 @@ def create_final_display_image( croppedImgs, names ):
 if __name__ == "__main__":
     #filename = "test_images/LT_fullscreen_1.png"
     # # cv2.imwrite( "test_images/test2_gray3.png", threshImg )
-
     print( "beginning of main..." )
+    pre_screen = perf_counter()
     take_screenshot()
+    post_screen = perf_counter()
     img = load_image( "tmpScreenshot.png" )
     names = get_names( img )
+    post_get_names = perf_counter()
     flatNameList = []
     for nameRow in names:
         for name in nameRow:
@@ -228,7 +234,14 @@ if __name__ == "__main__":
                 flatNameList.append( name )
     print( flatNameList )
     croppedImgs = get_cropped_images( img )
+    pre_final = perf_counter()
     create_final_display_image( croppedImgs, names )
+    post_final=perf_counter()
     handle = gw.getWindowsWithTitle('FallGuys_client')[0]
     handle.activate()
     handle.maximize()
+
+    print("import time: ", post_import - pre_import, "s")
+    print("screenshot time: ", post_screen - pre_screen, "s")
+    print("get names time: ", post_get_names - post_screen, "s")
+    print("check for trolls time: ", post_final - pre_final, "s")
