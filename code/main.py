@@ -188,8 +188,8 @@ def create_final_display_image( croppedImgs, names ):
             name = names[r][c]
             if name == "":
                 continue
-            ttvSimilarity = str_similarity( name[0:3].upper(), "TTV")
-            if ttvSimilarity >= 0.8:
+            ttv = name[0:3].upper()
+            if ttv == "TTV" or ttv == "TTY" or ttv == "TT¥":
                 foundTrolls.append( (r, c) )
                 continue
             for i in range( L ):
