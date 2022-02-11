@@ -190,8 +190,9 @@ def create_final_display_image( croppedImgs, names ):
                 continue
             for i in range( L ):
                 strSimilarity = str_similarity( name, trollNames[i] )
+                ttvSimilarity = str_similarity( name[0:3].upper(), "TTV")
                 #print( "Similarity " + name + " vs " + trollNames[i] + ":", strSimilarity )
-                if strSimilarity >= 0.8:
+                if strSimilarity >= 0.8 or ttvSimilarity >=0.9:
                     foundTrolls.append( (r, c) )
     time2 = perf_counter()
     print("check for trolls: ", time2 - time1, "s")
